@@ -10,10 +10,12 @@ import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementCreatorFactory;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -89,17 +91,24 @@ public class JdbcOrderRepository implements OrderRepository {
         jdbcOperations.update(psc, keyHolder);
         long tacoId = keyHolder.getKey().longValue();
         taco.setId(tacoId);
-        saveIngredientRefs(tacoId, taco.getIngredients());
+        saveIngredientRefs(createIngredientRefsForTaco(taco));
         return tacoId;
     }
-    private void saveIngredientRefs(long tacoId, List<Ingredient> ingredients) {
-        int key = 0;
-        for (Ingredient ingredient : ingredients) {
+    private void saveIngredientRefs(List<IngredientRef> ingredientRefs) {
+        for (IngredientRef ingredientRef : ingredientRefs) {
             jdbcOperations.update(
                     "insert into Ingredient_Ref (ingredient, taco, taco_key) "
                     + "values (?, ?, ?)",
-                    ingredient, tacoId, key++
+                    ingredientRef.getIngredient(), ingredientRef.getTacoId(), ingredientRef.getTacoKey()
             );
         }
+    }
+    private @NonNull List<IngredientRef> createIngredientRefsForTaco(final @NonNull Taco taco) {
+        List<IngredientRef> ingredientRefs = new ArrayList<>(taco.getIngredients().size());
+        int tacoKey = 0;
+        for (Ingredient ingredient : taco.getIngredients()) {
+            ingredientRefs.add(new IngredientRef(ingredient.getId(), taco.getId(), tacoKey++));
+        }
+        return ingredientRefs;
     }
 }

@@ -4,5 +4,7 @@ import lombok.Data;
 
 @Data
 public class IngredientRef {
-    private final String ingredient;    //  TODO: add cast from Ingredient to IngredientRef
+    private final String ingredient;
+    private final long tacoId;
+    private final long tacoKey;
 }
