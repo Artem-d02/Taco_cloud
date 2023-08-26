@@ -1,15 +1,14 @@
 package com.example.taco_cloud;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Data
-@Entity
 public class Taco {
     @NotNull
     @Size(min = 5, message = "Name should be longer then 5 symbols")
@@ -17,11 +16,11 @@ public class Taco {
 
     @NotNull
     @Size(min = 1, message = "Taco should contain at least 1 ingredient")
-    @ManyToMany
-    private List<Ingredient> ingredients;
+    private List<Ingredient> ingredients = new ArrayList<>();
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
     private Date createdAt = new Date();
+
+    public void addIngredient(Ingredient ingredient) {
+        this.ingredients.add(ingredient);
+    }
 }
